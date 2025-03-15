@@ -1,4 +1,3 @@
 
-#include "stdafx.h"
-#include "ComonFunc.h"
+#include "CommonFunc.h"
 
