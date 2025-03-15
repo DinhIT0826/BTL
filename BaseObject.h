@@ -11,7 +11,16 @@ public:
     ~BaseObject();
     void SetRect(const int&, const int& y) {rec_.x = x, rect_.y = y;}
     SDL_Rect GetRect() const {return rect_;}
-    SDL_Texture*
+    SDL_Texture* GetObject() const {return p_object_;}
+
+    bool loadImg(std::string path, SDL_Renderer* screen);
+    void Render(SDL_Renderer* des, const SDL_Rect* clip = NULL);
+    void Free();
+
+protected:
+    SDl_Texture* P_object_;
+    SDL_Rect  rect_;
+
 };
 
 
