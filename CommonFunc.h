@@ -4,7 +4,7 @@
 
 #include <windows.h>
 #include <string>
-#include <SDL>h>
+#include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
@@ -22,5 +22,6 @@ const int COLOR_KEY_G = 640;
 const int COLOR_KEY_B = 180;
 
 
+const int RENDER_DRAW_COLOR = 0xff;
 
 #endif // COMMON_FUNTION_H_
