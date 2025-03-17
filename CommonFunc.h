@@ -14,6 +14,7 @@ static SDL_Window* g_window = NULL;
 static SDL_Renderer* g_screen = NULL;
 static SDL_Event g_event;
 
+const int FRAME_PER_SECOND = 25; //fps
 const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = 600;
 const int SCREEN_BPP = 32;
@@ -24,6 +25,7 @@ const int COLOR_KEY_B = 180;
 
 
 const int RENDER_DRAW_COLOR = 0xff;
+
 
 #define BLANK_TILE 0
 #define TILE_SIZE 64
