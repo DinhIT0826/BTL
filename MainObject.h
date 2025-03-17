@@ -8,6 +8,7 @@
 #define GRAVITY_SPEED 0.8
 #define MAX_FALL_SPEED 10
 #define PLAYER_SPEED 8
+#define PLAYER_JUMP_VAL 18
 
 class MainObject : public BaseObject
 {
@@ -28,6 +29,9 @@ public:
 
     void DoPlayer(Map& map_data);
     void CheckToMap(Map& map_data);
+    void SetMapXY(const int map_x, const int map_y) {map_x_ = map_x; map_y_ = map_y;}
+    void CenterEntityOnMap(Map& map_data);
+
 
 private:
     float x_val_;
@@ -44,6 +48,10 @@ private:
     int frame_;
     int status_;
     bool on_ground_;
+
+    int map_x_;
+    int map_y_;
+
 
 };
 

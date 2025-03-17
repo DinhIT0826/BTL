@@ -17,6 +17,9 @@ MainObject::MainObject()
     input_type_.down_ = 0;
     input_type_.up_ = 0;
     on_ground_ = false;
+    map_x_ = 0;
+    map_y_ = 0;
+
 }
 
 MainObject::~MainObject()
@@ -86,13 +89,16 @@ void MainObject::set_clips()
 
 void MainObject::Show(SDL_Renderer* des)
 {
-    if (status_ == WALK_LEFT)
+    if(on_ground_ == true)
     {
+        if (status_ == WALK_LEFT)
+        {
         LoadImg("img//player_left.png", des);
-    }
-    else
-    {
+        }
+        else
+        {
         LoadImg("img//player_right.png", des);
+        }
     }
 
     if (input_type_.left_ == 1 || input_type_.right_ == 1)
@@ -109,8 +115,8 @@ void MainObject::Show(SDL_Renderer* des)
         frame_ = 0;
     }
 
-    rect_.x = x_pos_;
-    rect_.y = y_pos_;
+    rect_.x = x_pos_ - map_x_;
+    rect_.y = y_pos_ - map_y_;
 
     SDL_Rect* current_clip = &frame_clip_[frame_];
 
@@ -130,11 +136,27 @@ void MainObject::HandelInputAction(SDL_Event events, SDL_Renderer* screen)
                 status_ = WALK_RIGHT;
                 input_type_.right_ = 1;
                 input_type_.left_ = 0;
+                if(on_ground_ == true)
+                {
+                    LoadImg("img//player_right.png", screen);
+                }
+                else
+                {
+                    LoadImg("img//jum_right.png", screen);
+                }
                 break;
             case SDLK_LEFT:
                 status_ = WALK_LEFT;
                 input_type_.left_ = 1;
                 input_type_.right_ = 0;
+                if(on_ground_ == true)
+                {
+                    LoadImg("img//player_left.png", screen);
+                }
+                else
+                {
+                    LoadImg("img//jum_left.png", screen);
+                }
                 break;
             default:
                 break;
@@ -152,6 +174,15 @@ void MainObject::HandelInputAction(SDL_Event events, SDL_Renderer* screen)
                 break;
         }
     }
+
+    if (events.type == SDL_MOUSEBUTTONDOWN)
+    {
+        if(events.button.button == SDL_BUTTON_RIGHT)
+        {
+            input_type_.jump_ = 1;
+        }
+    }
+
 }
 
 void MainObject::DoPlayer(Map& map_data)
@@ -173,8 +204,44 @@ void MainObject::DoPlayer(Map& map_data)
         x_val_ += PLAYER_SPEED;
     }
 
+    if(input_type_.jump_ == 1)
+    {
+        if(on_ground_ == true)
+        {
+            y_val_ = - PLAYER_JUMP_VAL;
+        }
+        on_ground_ = false;
+        input_type_.jump_ = 0;
+
+    }
+
     CheckToMap(map_data);
+    CenterEntityOnMap(map_data);
 }
+
+void MainObject::CenterEntityOnMap(Map& map_data)
+{
+    map_data.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
+    if (map_data.start_x_ < 0)
+    {
+        map_data.start_x_ = 0;
+    }
+    else if (map_data.start_x_ + SCREEN_WIDTH >= map_data.max_x_)
+    {
+        map_data.start_x_ = map_data.max_x_ - SCREEN_WIDTH;
+    }
+
+    map_data.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
+    if (map_data.start_y_ < 0)
+    {
+        map_data.start_y_ = 0;
+    }
+    else if (map_data.start_y_ + SCREEN_HEIGHT >= map_data.max_y_)
+    {
+        map_data.start_y_ = map_data.max_y_ - SCREEN_HEIGHT;
+    }
+}
+
 
 void MainObject::CheckToMap(Map& map_data)
 {
