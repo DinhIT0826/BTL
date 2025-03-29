@@ -1,6 +1,5 @@
 
 #include "ThreatsObject.h"
-#include "BaseObject.h"
 
 ThreatsObject::ThreatsObject()
 {
@@ -331,16 +330,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
   on_ground_ = 0;
 
   //Check Horizontal
-  int height_min =   height_frame_ ;//SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
-
-  /*
-           x1,y1***x2
-           *       *
-           *       *
-           *       *
-           *y2******
-
-  */
+  int height_min =   height_frame_ ;
   x1 = (x_pos_ + x_val_) / TILE_SIZE;
   x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
 
@@ -375,7 +365,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
 
 
   // Check vertical
-  int width_min = width_frame_ ;//SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
+  int width_min = width_frame_ ;
 
   x1 = (x_pos_) / TILE_SIZE;
   x2 = (x_pos_ + width_min) / TILE_SIZE;
