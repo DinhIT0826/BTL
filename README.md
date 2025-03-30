@@ -1,2 +1,2 @@
 # BTL
-link báo cáo : https://docs.google.com/forms/d/1lKIrn4UNpRfPIwRpLGIU65BGeo9-Fg-JgQjawCv15io/
+link báo cáo : https://drive.google.com/file/d/1iZsTtQXbzp83rrDzJmbRN1qjm4nvbS-k/view?usp=drive_link
