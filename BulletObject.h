@@ -6,6 +6,10 @@
 
 #include "BaseObject.h"
 
+extern Mix_Chunk *g_sound_bullet; // Declare g_sound_bullet
+#define USE_AUDIO
+
+
 class BulletObject : public BaseObject
 {
 public:

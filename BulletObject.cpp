@@ -1,4 +1,5 @@
 
+#include "CommonFunc.h"
 #include "BulletObject.h"
 #include <cmath>
 #include <vector>
@@ -132,8 +133,17 @@ void BulletObject::HandleMoveRightToLeft(const int& origin_x)
     is_move_ = false;
   }
 }
-
 void BulletObject::HandleInputAction(SDL_Event events)
 {
+    if (events.type == SDL_KEYDOWN)
+    {
+        if (events.key.keysym.sym == SDLK_SPACE)
+        {
+            is_move_ = true;
 
+            Mix_PlayChannel(-1, g_sound_bullet, 0);
+        }
+    }
 }
+
+

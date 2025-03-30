@@ -1,0 +1,110 @@
+# depslib dependency file v1.0
+1743350612 source:d:\btl\main.cpp
+	"CommonFunc.h"
+	"BaseObject.h"
+	"game_map.h"
+	"MainObject.h"
+	"ImpTimer.h"
+	"ThreatsObject.h"
+	"ExplosionObject.h"
+	"TextObject.h"
+	"PlayerPower.h"
+	"Geometric.h"
+	"BossObject.h"
+
+1743230827 source:d:\btl\commonfunc.cpp
+	"CommonFunc.h"
+
+1743268030 d:\btl\commonfunc.h
+	<windows.h>
+	<vector>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+
+1743230994 d:\btl\baseobject.h
+	"CommonFunc.h"
+
+1743350797 source:d:\btl\baseobject.cpp
+	"BaseObject.h"
+
+1743232335 source:d:\btl\game_map.cpp
+	"game_map.h"
+
+1743231142 d:\btl\game_map.h
+	"CommonFunc.h"
+	"BaseObject.h"
+
+1743333518 d:\btl\mainobject.h
+	"CommonFunc.h"
+	"BaseObject.h"
+	"BulletObject.h"
+	<vector>
+
+1743350797 source:d:\btl\mainobject.cpp
+	"MainObject.h"
+
+1742377963 d:\btl\imptimer.h
+
+1742208177 source:d:\btl\imptimer,cpp.c
+	"ImpTimer.h"
+	"CommonFunc.h"
+
+1742377963 source:d:\btl\imptimer.cpp
+	"ImpTimer.h"
+	"CommonFunc.h"
+
+1743349508 source:d:\btl\bulletobject.cpp
+	"CommonFunc.h"
+	"BulletObject.h"
+	<cmath>
+	<vector>
+
+1743332200 d:\btl\bulletobject.h
+	"BaseObject.h"
+
+1743231019 source:d:\btl\threatsobject.cpp
+	"ThreatsObject.h"
+
+1742378879 d:\btl\threatsobject.h
+	"CommonFunc.h"
+	"BaseObject.h"
+	"BulletObject.h"
+	<vector>
+
+1743037116 source:d:\btl\textobject.cpp
+	"TextObject.h"
+
+1743037117 d:\btl\textobject.h
+	"CommonFunc.h"
+
+1743230484 source:d:\btl\geometric.cpp
+	"Geometric.h"
+
+1743230484 d:\btl\geometric.h
+	"CommonFunc.h"
+
+1743036768 source:d:\btl\playerpower.cpp
+	"PlayerPower.h"
+
+1743036767 d:\btl\playerpower.h
+	"CommonFunc.h"
+	"BaseObject.h"
+
+1743231026 source:d:\btl\explosionobject.cpp
+	"ExplosionObject.h"
+
+1743230664 d:\btl\explosionobject.h
+	"CommonFunc.h"
+	"BaseObject.h"
+
+1743231011 source:d:\btl\bossobject.cpp
+	"BossObject.h"
+
+1743230484 d:\btl\bossobject.h
+	"BaseObject.h"
+	"CommonFunc.h"
+	"BulletObject.h"
+

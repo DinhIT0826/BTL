@@ -15,17 +15,20 @@
 BaseObject g_background;
 TTF_Font* g_font_text = NULL;
 
+Mix_Chunk *g_sound_bullet = NULL;
+Mix_Chunk *g_sound_explosion = NULL;
+Mix_Chunk *g_sound_ex_main = NULL;
+Mix_Music *g_music = NULL;
+
 bool InitData()
 {
     bool success = true;
-    int ret = SDL_Init( SDL_INIT_VIDEO);
+    int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     if(ret < 0) return false;
-
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
-    //Create window
-    g_window = SDL_CreateWindow("BTL_LAMGAME",
+    g_window = SDL_CreateWindow("SONIC DAI CHIEN QUAI VAT",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
     if(g_window == NULL )
@@ -39,7 +42,6 @@ bool InitData()
             success = false;
         else
         {
-            SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
             int imgFlags = IMG_INIT_PNG;
             if (!(IMG_Init(imgFlags) && imgFlags))
                 success = false;
@@ -50,6 +52,12 @@ bool InitData()
             success = false;
         }
 
+        //Initialize SDL_mixer
+        if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+        {
+            printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+            success = false;
+        }
 
         g_font_text = TTF_OpenFont("font//dlxfont.ttf", 15);
         if (g_font_text == NULL)
@@ -58,6 +66,43 @@ bool InitData()
         }
     }
 
+
+    return success;
+}
+
+bool LoadAudio()
+{
+    bool success = true;
+
+    g_sound_bullet = Mix_LoadWAV( "sound//bullet.mp3" );
+    if( g_sound_bullet == NULL )
+    {
+        printf( "Failed to load bullet sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
+    g_sound_explosion = Mix_LoadWAV( "sound//explosion.mp3" );
+    if( g_sound_explosion == NULL )
+    {
+        printf( "Failed to load explosion sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
+    g_sound_ex_main = Mix_LoadWAV( "sound//die.mp3" );
+    if( g_sound_ex_main == NULL )
+    {
+        printf( "Failed to load main die sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
+     g_music = Mix_LoadMUS("sound//background.mp3");
+     if (g_music == NULL) {
+        printf("Failed to load background music! SDL_mixer Error: %s\n", Mix_GetError());
+        success = false;
+     }
+     if (g_music != NULL) {
+        Mix_PlayMusic(g_music, -1);
+    }
 
     return success;
 }
@@ -129,7 +174,6 @@ std::vector<ThreatsObject*> MakeThreadList()
 
             BulletObject* p_bullet = new BulletObject();
             thread_obj3->InitBullet(p_bullet, g_screen);
-            //thread_obj3->set_is_alive(true);
             list_threats.push_back(thread_obj3);
         }
     }
@@ -137,19 +181,168 @@ std::vector<ThreatsObject*> MakeThreadList()
 
     return list_threats;
 }
+// MENU
+bool showMenu(SDL_Renderer* renderer)
+{
+    SDL_Texture* menuTexture = IMG_LoadTexture(renderer, "img//menu.jpg");
+    if (!menuTexture)
+    {
+        SDL_Log("Không thể tải hình ảnh menu: %s", IMG_GetError());
+        return false;
+    }
 
+    SDL_Rect destRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, menuTexture, NULL, &destRect);
+
+    TTF_Font* font = TTF_OpenFont("font//dlxfont.ttf", 36);
+    SDL_Color whiteColor = { 255, 255, 255 };
+
+    TextObject playText;
+    playText.SetText("PLAY GAME");
+    playText.loadFromRenderedText(font, renderer);
+    SDL_Rect playButton = { 100, SCREEN_HEIGHT / 2 - 50, 160, 80 };
+playText.RenderText(renderer, playButton.x + 20, playButton.y + 10);
+
+    TextObject exitText;
+    exitText.SetText("EXIT");
+    exitText.loadFromRenderedText(font, renderer);
+    SDL_Rect exitButton = { 100, SCREEN_HEIGHT / 2 + 50, 160, 80 };
+exitText.RenderText(renderer, exitButton.x + 50, exitButton.y + 10);
+    SDL_RenderPresent(renderer);
+
+    SDL_Event e;
+    while (true)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                SDL_DestroyTexture(menuTexture);
+                return false;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+
+                if (x >= playButton.x && x <= playButton.x + playButton.w &&
+                    y >= playButton.y && y <= playButton.y + playButton.h)
+                {
+                    SDL_DestroyTexture(menuTexture);
+                    return true; // Bắt đầu game
+                }
+                else if (x >= exitButton.x && x <= exitButton.x + exitButton.w &&
+                         y >= exitButton.y && y <= exitButton.y + exitButton.h)
+                {
+                    SDL_DestroyTexture(menuTexture);
+                    return false; // Thoát game
+                }
+            }
+        }
+    }
+}
+
+//GAME OVER
+void showGameOverScreen(SDL_Renderer* renderer, bool &restartGame)
+{
+    SDL_Texture* gameOverTexture = IMG_LoadTexture(renderer, "img//game_over.jpg");
+    if (!gameOverTexture)
+    {
+        SDL_Log("khong the tai hinh anh Game Over: %s", IMG_GetError());
+        return;
+    }
+
+    SDL_Rect destRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, gameOverTexture, NULL, &destRect);
+
+    TTF_Font* font = TTF_OpenFont("font//dlxfont.ttf", 36);
+    SDL_Color whiteColor = { 255, 255, 255 };
+
+    TextObject playAgainText;
+    playAgainText.SetText("PLAY AGAIN");
+    playAgainText.loadFromRenderedText(font, renderer);
+    int playAgainTextWidth = playAgainText.getWidth();
+    playAgainText.RenderText(renderer, (SCREEN_WIDTH - playAgainTextWidth) / 2, SCREEN_HEIGHT / 2 + 50);
+
+
+    SDL_Rect yesButton = { SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 + 130, 80, 40 };  // Moved down more
+    TextObject yesText;
+    yesText.SetText("YES");
+    yesText.loadFromRenderedText(font, renderer);
+    int yesTextWidth = yesText.getWidth();
+    yesText.RenderText(renderer, yesButton.x + (yesButton.w - yesTextWidth) / 2 , yesButton.y + 5);
+
+    // Hiển thị chữ "NO"
+   SDL_Rect noButton = { SCREEN_WIDTH / 2 + 50, SCREEN_HEIGHT / 2 + 130, 80, 40 };  //Moved down more
+    TextObject noText;
+    noText.SetText("NO");
+    noText.loadFromRenderedText(font, renderer);
+     int noTextWidth = noText.getWidth();
+    noText.RenderText(renderer, noButton.x + (noButton.w - noTextWidth) / 2 , noButton.y + 5);
+
+
+    SDL_RenderPresent(renderer);
+
+    SDL_Event e;
+    bool running = true;
+    while (running)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                running = false;
+                restartGame = false;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x >= yesButton.x && x <= yesButton.x + yesButton.w &&
+                    y >= yesButton.y && y <= yesButton.y + yesButton.h)
+                {
+                    restartGame = true;  // Chơi lại từ đầu
+                    running = false;
+                }
+                else if (x >= noButton.x && x <= noButton.x + noButton.w &&
+                         y >= noButton.y && y <= noButton.y + noButton.h)
+                {
+                    restartGame = false; // Thoát game
+                    running = false;
+                    SDL_Quit();  // Thoát SDL
+                    exit(0);      // Thoát chương trình
+                }
+            }
+        }
+    }
+
+    SDL_DestroyTexture(gameOverTexture);
+    TTF_CloseFont(font);  // Don't forget to close the font!
+}
+// Phát nhạc nền
 
 int main(int argc, char* argv[])
 {
     ImpTimer fps;
-    //Start up SDL and create window
     if (InitData() == false)
     {
         return -1;
     }
+    if(!LoadAudio()) { //Load Audio
+       return -1;
+    }
 
+    if (!showMenu(g_screen))
+    {
+        close();
+        return 0;
+    }
 
-    if(!LoadBackground())
+    if (!LoadBackground())
     {
         return -1;
     }
@@ -157,7 +350,6 @@ int main(int argc, char* argv[])
     GameMap game_map;
     game_map.LoadMap("map//map01.dat");
     game_map.LoadMapTiles(g_screen);
-
 
     MainObject p_player;
     p_player.LoadImg(g_name_main_right, g_screen);
@@ -175,8 +367,6 @@ int main(int argc, char* argv[])
 
     std::vector<ThreatsObject*> threats_list = MakeThreadList();
 
-
-    //Init Boss Object
     BossObject bossObject;
     bossObject.LoadImg("img//boss_object.png", g_screen);
     bossObject.set_clips();
@@ -224,7 +414,6 @@ int main(int argc, char* argv[])
             p_player.HandleInputAction(g_event, g_screen);
         }
 
-        SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
         SDL_RenderClear(g_screen);
 
         g_background.Render(g_screen, NULL);
@@ -266,7 +455,6 @@ int main(int argc, char* argv[])
 
            SDL_Rect rect_player = p_player.GetRectFrame();
 
-           //COLLISION THREAT BULLET -> MAIN OBJECT
            bool is_col1 = false;
            std::vector<BulletObject*> bullet_list = obj_threat->get_bullet_list();
            for (int am = 0; am < bullet_list.size(); am++)
@@ -288,8 +476,6 @@ int main(int argc, char* argv[])
 
            if (is_col2 || is_col1)
            {
-               //obj_threat->Reset(SCREEN_WIDTH, SCREEN_HEIGHT);
-               //walk_object.set_is_move(true);
                int width_exp_frame = exp_main.get_frame_height();
                int heiht_exp_height = exp_main.get_frame_width();
                for (int ex = 0; ex < 4; ex++)
@@ -303,7 +489,7 @@ int main(int argc, char* argv[])
                    SDL_RenderPresent(g_screen);
                }
 #ifdef USE_AUDIO
-               Mix_PlayChannel(-1, g_sound_ex_main, 0);
+               //Mix_PlayChannel(-1, g_sound_ex_main, 0);
 #endif
                num_die++;
                if (num_die <= 3)
@@ -317,19 +503,37 @@ int main(int argc, char* argv[])
                }
                else
                {
-                   if(MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
-                   {
-                       obj_threat->Free();
-                       close();
-                       SDL_Quit();
-                       return 0;
-                   }
+
+                   bool restartGame = false;
+showGameOverScreen(g_screen, restartGame);
+if (restartGame)
+{
+    num_die = 0;
+    mark_value = 0;
+
+    p_player.SetRect(0, 0);
+    p_player.set_think_time(0);
+    player_power.Init(g_screen);
+    player_money.Init(g_screen);
+
+    threats_list = MakeThreadList();
+    game_map.LoadMap("map//map01.dat");
+
+    continue;
+}
+else
+{
+    obj_threat->Free();
+    close();
+    SDL_Quit();
+    return 0;
+}
+
+
                }
            }
        }
 
-
-       //COLLISION THREAT -> Main Bullet
        std::vector<BulletObject*> bullet_arr = p_player.get_bullet_list();
        int frame_exp_width = exp_threats.get_frame_width();
        int frame_exp_height = exp_threats.get_frame_width();
@@ -363,37 +567,26 @@ int main(int argc, char* argv[])
                            exp_threats.SetRect(x_pos, y_pos);
                            exp_threats.Show(g_screen);
                        }
-
-                       // p_threat->Reset(SCREEN_WIDTH, SCREEN_HEIGHT);
                        p_player.RemoveBullet(am);
 
-                       //if (obj_threat->get_type_move() == ThreatsObject::MOVING_CONTINOUS)
-                       //{
-                       //    obj_threat->Reset();
-                       //}
-                       //else
-                       //{
+
                            obj_threat->Free();
                            threats_list.erase(threats_list.begin() + i);
-                       //}
 
 #ifdef USE_AUDIO
-                       Mix_PlayChannel(-1, g_sound_explosion, 0);
 #endif
                    }
                }
            }
        }
 
-
-       //Show time for game
        std::string str_time = "Time: ";
        Uint32 time_val = SDL_GetTicks() / 1000;
        Uint32 val_time = 300 - time_val;
 
        if (val_time <= 0)
        {
-           if (MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
+           if (MessageBoxW(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
            {
                quit = true;
                break;
@@ -408,9 +601,6 @@ int main(int argc, char* argv[])
            time_game.loadFromRenderedText(g_font_text, g_screen);
            time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 15);
        }
-
-
-       //Show mark value to screen
        std::string val_str_mark = std::to_string(mark_value);
        std::string strMark("Mark: ");
        strMark += val_str_mark;
@@ -424,8 +614,6 @@ int main(int argc, char* argv[])
        money_count.SetText(money_count_str);
        money_count.loadFromRenderedText(g_font_text, g_screen);
        money_count.RenderText(g_screen, SCREEN_WIDTH*0.5 - 250, 15);
-
-
 
        //Process Boss
        int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);

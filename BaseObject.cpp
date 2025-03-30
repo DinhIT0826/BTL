@@ -1,8 +1,6 @@
 
 #include "BaseObject.h"
 
-
-
 BaseObject::BaseObject()
 {
   p_object_ = NULL;
@@ -59,7 +57,7 @@ void BaseObject::Free()
   }
 }
 
-void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip /*=NULL*/)
+void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip )
 {
   SDL_Rect renderQuad = { rect_.x, rect_.y, rect_.w, rect_.h};
   if (clip != NULL)

@@ -26,7 +26,7 @@ void GameMap::LoadMap(char* name)
   {
     for (int j = 0; j < MAX_MAP_X; j++)
     {
-      fscanf_s(fp, "%d", &game_map_.tile[i][j]);
+      fscanf(fp, "%d", &game_map_.tile[i][j]);
       if (game_map_.tile[i][j] > 0)
       {
         if (j > game_map_.max_x_)

@@ -191,23 +191,19 @@ void BossObject::CheckToMap(Map& g_map)
     y1 = (y_pos_) / TILE_SIZE;
     y2 = (y_pos_ + height_min - 1) / TILE_SIZE;
 
-    // Check x1, x2 with full width of map
-    // Check y1, y2 with full heigth of map
     if (x1 >= 0 && x2 < MAX_MAP_X && y1 >= 0 && y2 < MAX_MAP_Y)
     {
-        if (x_val_ > 0) // when object is moving by right  ===>
+        if (x_val_ > 0)
         {
-            // Check current position of map. It is not blank_tile.
+
             if ((g_map.tile[y1][x2] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
             {
-                // Fixed post of object at current post of map.
-                // => Cannot moving when press button
                 x_pos_ = x2 * TILE_SIZE;
                 x_pos_ -= width_frame_ + 1;
                 x_val_ = 0; // cannot moving
             }
         }
-        else if (x_val_ < 0) // When moving by left    <====
+        else if (x_val_ < 0)
         {
             if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y2][x1] != BLANK_TILE))
             {
@@ -219,7 +215,7 @@ void BossObject::CheckToMap(Map& g_map)
 
 
     // Check vertical
-    int width_min = width_frame_;// SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
+    int width_min = width_frame_;
 
     x1 = (x_pos_) / TILE_SIZE;
     x2 = (x_pos_ + width_min) / TILE_SIZE;
