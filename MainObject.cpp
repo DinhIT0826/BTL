@@ -92,6 +92,7 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
       p_bullet->LoadImg("img//player_bullet.png", screen);
 
 #ifdef USE_AUDIO
+    Mix_PlayChannel(-1, g_sound_bullet, 0); // Phát âm thanh khi bắn đạn
 #endif
       if (status_ == WALK_LEFT)
       {

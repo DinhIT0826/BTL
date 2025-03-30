@@ -175,16 +175,9 @@ void BossObject::CheckToMap(Map& g_map)
     on_ground_ = 0;
 
     //Check Horizontal
-    int height_min =   height_frame_ ;//SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
+    int height_min =   height_frame_ ;
 
-    /*
-    x1,y1***x2
-    *       *
-    *       *
-    *       *
-    *y2******
 
-    */
     x1 = (x_pos_ + x_val_) / TILE_SIZE;
     x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
 

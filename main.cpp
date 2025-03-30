@@ -74,21 +74,21 @@ bool LoadAudio()
 {
     bool success = true;
 
-    g_sound_bullet = Mix_LoadWAV( "sound//bullet.mp3" );
+    g_sound_bullet = Mix_LoadWAV( "sound//bullet.wav" );
     if( g_sound_bullet == NULL )
     {
         printf( "Failed to load bullet sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
     }
 
-    g_sound_explosion = Mix_LoadWAV( "sound//explosion.mp3" );
+    g_sound_explosion = Mix_LoadWAV( "sound//explosion.wav" );
     if( g_sound_explosion == NULL )
     {
         printf( "Failed to load explosion sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
     }
 
-    g_sound_ex_main = Mix_LoadWAV( "sound//die.mp3" );
+    g_sound_ex_main = Mix_LoadWAV( "sound//die.wav" );
     if( g_sound_ex_main == NULL )
     {
         printf( "Failed to load main die sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
@@ -402,6 +402,7 @@ int main(int argc, char* argv[])
     bool quit = false;
     while(!quit)
     {
+
         fps.start();
         while( SDL_PollEvent(&g_event) != 0 )
         {
@@ -489,7 +490,7 @@ int main(int argc, char* argv[])
                    SDL_RenderPresent(g_screen);
                }
 #ifdef USE_AUDIO
-               //Mix_PlayChannel(-1, g_sound_ex_main, 0);
+               Mix_PlayChannel(-1, g_sound_ex_main, 0);
 #endif
                num_die++;
                if (num_die <= 3)
@@ -528,7 +529,6 @@ else
     SDL_Quit();
     return 0;
 }
-
 
                }
            }
@@ -574,6 +574,7 @@ else
                            threats_list.erase(threats_list.begin() + i);
 
 #ifdef USE_AUDIO
+     Mix_PlayChannel(-1, g_sound_ex_main, 0);
 #endif
                    }
                }
